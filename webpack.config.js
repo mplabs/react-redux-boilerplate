@@ -4,11 +4,18 @@ module.exports = env => {
   const entry = () => {
     switch (env.NODE_ENV) {
       case 'production':
-        return ['@babel/polyfill', './src/main']
+        return [
+          '@babel/polyfill',
+          `${__dirname}/node_modules/normalize.css`,
+          './src/theme/main.scss',
+          './src/main'
+        ]
 
       default:
         return [
           '@babel/polyfill',
+          `${__dirname}/node_modules/normalize.css`,
+          './src/theme/main.scss',
           './src/main',
           `webpack-dev-server/client?http://localhost:${env.PORT || 1337}`
         ]
@@ -16,12 +23,12 @@ module.exports = env => {
   }
 
   const devServer =
-    env.NODE_ENV === 'production'
-      ? {}
-      : {
-          contentBase: [`${__dirname}/node_modules/@salesforce-ux/design-system`, './src'],
+    env.NODE_ENV !== 'production'
+      ? {
+          contentBase: ['./src'],
           port: env.PORT || 1337
         }
+      : {}
 
   return {
     entry: entry(),
@@ -55,6 +62,14 @@ module.exports = env => {
           use: {
             loader: 'file-loader?name=[name].[ext]'
           }
+        },
+        {
+          test: /\.css$/,
+          loader: 'style-loader!css-loader!postcss-loader'
+        },
+        {
+          test: /\.scss$/,
+          loader: 'style-loader!css-loader!postcss-loader!sass-loader'
         }
       ]
     },
